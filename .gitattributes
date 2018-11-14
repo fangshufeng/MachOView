@@ -1,1 +1,2 @@
 *.mm linguist-language=Objective-C
+*.h linguist-language=Objective-C
