@@ -633,23 +633,29 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
   }
   else
   {
-    NSPredicate *predicate = [NSPredicate
-                              predicateWithFormat:@"self contains[cd] %@", filter];
-
-    displayRows = [[NSMutableArray alloc] init];
-    for (MVRow * row in rows)
-    {
-      if (row.coloumns == nil)
-      {
-        [row loadFromFile:swapFile];
-      }
+      NSString *format = [NSString stringWithFormat:@"*%@*",filter];
     
-      NSString * metadata = [row.attributes objectForKey:MVMetaDataAttributeName];
-      if (metadata == nil || [predicate evaluateWithObject:metadata] == YES)
-      {
-        [displayRows addObject:row];
+      NSPredicate *predicate = [NSPredicate
+                                predicateWithFormat:@"self LIKE [cd] %@", format];
+      displayRows = [[NSMutableArray alloc] init];
+      for (MVRow * row in rows) {
+
+          if (row.coloumns == nil) {
+              [row loadFromFile:swapFile];
+          }
+        
+          NSString *offsetStr = row.coloumns.offsetStr;
+          NSString *dataStr = row.coloumns.dataStr;
+          NSString *descriptionStr = row.coloumns.descriptionStr;
+          NSString *valueStr = row.coloumns.valueStr;
+          
+          if ([predicate evaluateWithObject:offsetStr] == YES ||
+              [predicate evaluateWithObject:dataStr] == YES ||
+              [predicate evaluateWithObject:descriptionStr] == YES ||
+              [predicate evaluateWithObject:valueStr] == YES) {
+              [displayRows addObject:row];
+          }
       }
-    }
   }
   [tableLock unlock];
 }
