@@ -438,7 +438,8 @@ _hex2int(char const * a, uint32_t len)
   MVNode * segmentSplitInfoNode = nil;
   MVNode * functionStartsNode = nil;
   MVNode * dataInCodeEntriesNode = nil;
-  
+  MVNode * stringsNode = nil;
+    
   NSString * lastNodeCaption;
   
   if (symtab_command)
@@ -448,10 +449,10 @@ _hex2int(char const * a, uint32_t len)
                              location:symtab_command->symoff + imageOffset
                                length:symtab_command->nsyms * sizeof(struct nlist)];
     
-    [self createDataNode:rootNode 
-                 caption:@"String Table"
-                location:symtab_command->stroff + imageOffset
-                  length:symtab_command->strsize];
+    stringsNode =  [self createDataNode:rootNode
+                                caption:@"String Table"
+                               location:symtab_command->stroff + imageOffset
+                                 length:symtab_command->strsize];
   }
   
   if (dysymtab_command)
@@ -553,6 +554,16 @@ _hex2int(char const * a, uint32_t len)
     }
   }
   
+    if (stringsNode) {
+        @try {
+            [self createStrings:stringsNode
+                        caption:(lastNodeCaption = @"Strings Parse")
+                       location:stringsNode.dataRange.location
+                         length:stringsNode.dataRange.length];
+        } @catch(NSException * exception) {
+            [self printException:exception caption:lastNodeCaption];
+        }
+    }
   
   //=========== Dynamic Symbol Table =============
   //==============================================
@@ -683,7 +694,8 @@ _hex2int(char const * a, uint32_t len)
       [self createDataInCodeEntriesNode:dataInCodeEntriesNode
                                 caption:(lastNodeCaption = @"Dices")
                                location:dataInCodeEntriesNode.dataRange.location
-                                 length:dataInCodeEntriesNode.dataRange.length];
+                                 length:dataInCodeEntriesNode.dataRange.length
+                                is64Bit:NO];
     }
     @catch(NSException * exception)
     {
@@ -753,6 +765,7 @@ _hex2int(char const * a, uint32_t len)
   MVNode * segmentSplitInfoNode = nil;
   MVNode * functionStartsNode = nil;
   MVNode * dataInCodeEntriesNode = nil;
+  MVNode * stringsNode = nil;
 
   NSString * lastNodeCaption;
   
@@ -763,10 +776,10 @@ _hex2int(char const * a, uint32_t len)
                              location:symtab_command->symoff + imageOffset
                                length:symtab_command->nsyms * sizeof(struct nlist_64)];
     
-    [self createDataNode:rootNode 
-                 caption:@"String Table"
-                location:symtab_command->stroff + imageOffset
-                  length:symtab_command->strsize];
+  stringsNode =  [self createDataNode:rootNode
+                              caption:@"String Table"
+                             location:symtab_command->stroff + imageOffset
+                               length:symtab_command->strsize];
   }
   
   if (dysymtab_command)
@@ -868,6 +881,16 @@ _hex2int(char const * a, uint32_t len)
     }
   }
   
+    if (stringsNode) {
+        @try {
+            [self createStrings:stringsNode
+                        caption:(lastNodeCaption = @"Strings Parse")
+                       location:stringsNode.dataRange.location
+                         length:stringsNode.dataRange.length];
+        } @catch(NSException * exception) {
+            [self printException:exception caption:lastNodeCaption];
+        }
+    }
 
   //=========== Dynamic Symbol Table =============
   //==============================================
@@ -998,7 +1021,8 @@ _hex2int(char const * a, uint32_t len)
       [self createDataInCodeEntriesNode:dataInCodeEntriesNode
                                 caption:(lastNodeCaption = @"Dices")
                                location:dataInCodeEntriesNode.dataRange.location
-                                 length:dataInCodeEntriesNode.dataRange.length];
+                                 length:dataInCodeEntriesNode.dataRange.length
+                                is64Bit:YES];
     }
     @catch(NSException * exception)
     {
@@ -2513,7 +2537,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Section relocations finished parsing.", self);
   }];
-  
+
   NSBlockOperation * dyldInfoOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2522,7 +2546,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Dyld info finished parsing.", self);
   }];
-  
+
   NSBlockOperation * sectionOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2531,7 +2555,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Section contents finished parsing.", self);
   }];
-  
+
   NSBlockOperation * EHFramesOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2540,7 +2564,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Exception Frames finished parsing.", self);
   }];
-  
+
   NSBlockOperation * LSDAsOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2549,7 +2573,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Lang Spec Data Areas finished parsing. (%lu LSDAs found)", self, lsdaInfo.size());
   }];
-  
+
   NSBlockOperation * objcSectionOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2558,7 +2582,7 @@ struct CompareSectionByName
     }
     NSLog(@"%@: ObjC Section contents finished parsing.", self);
   }];
-  
+
   NSBlockOperation * codeSectionsOperation = [NSBlockOperation blockOperationWithBlock:^
   {
     if ([backgroundThread isCancelled]) return;
@@ -2567,8 +2591,8 @@ struct CompareSectionByName
     }
     NSLog(@"%@: Code sections finished parsing.", self);
   }];
-  
-  // setup dependencies
+//
+//  // setup dependencies
   [sectionOperation       addDependency:linkEditOperation];
   [sectionRelocsOperation addDependency:sectionOperation];
   [dyldInfoOperation      addDependency:sectionRelocsOperation];
@@ -2586,14 +2610,16 @@ struct CompareSectionByName
 
   [dataController updateStatus:MVStatusTaskStarted];
   
-  [oq   addOperations:[NSArray arrayWithObjects:linkEditOperation,
+  [oq   addOperations:[NSArray arrayWithObjects:
+                       linkEditOperation,
                                                 sectionOperation,
                                                 sectionRelocsOperation,
                                                 dyldInfoOperation,
                                                 EHFramesOperation,
                                                 LSDAsOperation,
                                                 objcSectionOperation,
-                                                codeSectionsOperation,nil] 
+                                                codeSectionsOperation,
+                       nil]
     waitUntilFinished:YES];
   
   [super doBackgroundTasks];

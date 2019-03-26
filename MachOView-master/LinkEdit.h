@@ -87,8 +87,13 @@
 - (MVNode *) createDataInCodeEntriesNode:parent
                                  caption:(NSString *)caption
                                 location:(uint32_t)location
-                                  length:(uint32_t)length;
+                                  length:(uint32_t)length
+                                 is64Bit:(BOOL)is64Bit;
 
 
+- (MVNode *)createStrings:(MVNode *)parent
+                  caption:(NSString *)caption
+                 location:(uint32_t)location
+                   length:(uint32_t)length;
 @end
 
