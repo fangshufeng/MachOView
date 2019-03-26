@@ -461,12 +461,15 @@ enum ViewType
               [stopButton setHidden:NO];
           });
       }
-    }
-    else if ([threadState isEqualToString:MVStatusTaskTerminated] == YES)
-    {
-      if (OSAtomicDecrement32(&threadCount) == 0)
-      {
-         
+    } else if ([threadState isEqualToString:MVStatusTaskPendding]) {
+        NSString * statusString = [[notification userInfo] objectForKey:MVStatusPenddingKey];
+        if (statusString.length) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [statusText setStringValue:statusString];
+            });
+        }
+    } else if ([threadState isEqualToString:MVStatusTaskTerminated] == YES) {
+      if (OSAtomicDecrement32(&threadCount) == 0){
           dispatch_async(dispatch_get_main_queue(), ^{
               [progressIndicator stopAnimation:nil];
               [statusText setStringValue:@""];

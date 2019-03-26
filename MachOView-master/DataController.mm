@@ -44,6 +44,7 @@ NSString * const MVMetaDataAttributeName          = @"MVMetaDataAttribute";
 NSString * const MVLayoutUserInfoKey              = @"MVLayoutUserInfoKey";
 NSString * const MVNodeUserInfoKey                = @"MVNodeUserInfoKey";
 NSString * const MVStatusUserInfoKey              = @"MVStatusUserInfoKey";
+NSString * const MVStatusPenddingKey              = @"MVStatusPenddingKey";
 
 NSString * const MVDataTreeWillChangeNotification = @"MVDataTreeWillChangeNotification";
 NSString * const MVDataTreeDidChangeNotification  = @"MVDataTreeDidChangeNotification";
@@ -52,6 +53,7 @@ NSString * const MVDataTableChangedNotification   = @"MVDataTableChanged";
 NSString * const MVThreadStateChangedNotification = @"MVThreadStateChanged";
 
 NSString * const MVStatusTaskStarted              = @"MVStatusTaskStarted";
+NSString * const MVStatusTaskPendding             = @"MVStatusTaskPendding";
 NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
 
 //============================================================================
@@ -1216,6 +1218,18 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
                     object:self
                   userInfo:[NSDictionary dictionaryWithObject:status forKey:MVStatusUserInfoKey]];
 }
+
+- (void)updateStatus: (NSString *)status :statusString
+{
+    NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+    [nc postNotificationName:MVThreadStateChangedNotification
+                      object:self
+                    userInfo:
+     @{MVStatusUserInfoKey:status,
+       MVStatusPenddingKey:statusString
+       }];
+}
+
 
 @end
 

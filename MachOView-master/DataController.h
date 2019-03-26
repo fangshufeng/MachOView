@@ -22,6 +22,7 @@ extern NSString * const MVMetaDataAttributeName;
 extern NSString * const MVLayoutUserInfoKey;
 extern NSString * const MVNodeUserInfoKey;
 extern NSString * const MVStatusUserInfoKey;
+extern NSString * const MVStatusPenddingKey;
 
 extern NSString * const MVDataTreeWillChangeNotification;
 extern NSString * const MVDataTreeDidChangeNotification;
@@ -30,6 +31,7 @@ extern NSString * const MVDataTableChangedNotification;
 extern NSString * const MVThreadStateChangedNotification;
 
 extern NSString * const MVStatusTaskStarted;
+extern NSString * const MVStatusTaskPendding;
 extern NSString * const MVStatusTaskTerminated;
 
 struct MVNodeSaver;
@@ -169,6 +171,7 @@ struct MVNodeSaver;
 - (void)                updateTreeView: (MVNode *)node;
 - (void)                updateTableView;
 - (void)                updateStatus: (NSString *)status;
+- (void)updateStatus: (NSString *)status :statusString;
 
 @end
 
