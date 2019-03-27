@@ -1,7 +1,37 @@
-# MachOView
+# MachOView 
 
 该工程是建立在[轮子](https://github.com/gdbinit/MachOView)上的，感谢作者的贡献，遗憾的源工程无法直接编译，这边自己维护了下。
 
+
+## v2.6.0 更新内容
+
+### 1. 增加String Parse 部分 解析StringTable未解析的部分
+
+![](https://user-images.githubusercontent.com/16829768/55061401-a5efd280-50ae-11e9-83aa-e22494bb14db.jpg)
+
+
+![15535837037239](https://user-images.githubusercontent.com/16829768/55061443-c15add80-50ae-11e9-909c-03864204bf02.jpg)
+
+
+### 2. 修复部分Macho无法正常解析的bug
+
+![](https://user-images.githubusercontent.com/16829768/55061447-c324a100-50ae-11e9-853f-0d030d1972a1.jpg)
+
+### 3. 增加解析过程的过程信息,实时知道当前已经解析到哪一步了
+
+![](https://user-images.githubusercontent.com/16829768/55061460-c7e95500-50ae-11e9-9657-637064c6ccf0.jpg)
+
+
+### 4. 增加获取MetaClassInfo信息
+
+![](https://user-images.githubusercontent.com/16829768/55061456-c61f9180-50ae-11e9-817b-031013eb7e21.jpg)
+
+
+![](https://user-images.githubusercontent.com/16829768/55061458-c6b82800-50ae-11e9-950f-6c71ae28a7be.jpg)
+
+操作方法先打开`view` -> `Show MetaClassInfo` ，然后再推入二进制文件
+
+[dmg地址](https://github.com/fangshufeng/MachOView/releases/tag/2.5)
 
 ## v2.5 优化搜索功能
 
@@ -15,6 +45,10 @@
 #### 直接使用dmg
 [下载地址](https://github.com/fangshufeng/MachOView/releases/tag/1.0.0)
 
+
+---
+
+如果帮到你就给个⭐️⭐️⭐️吧
 
 
 
