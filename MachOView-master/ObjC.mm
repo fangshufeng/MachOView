@@ -3277,13 +3277,11 @@ struct message_ref64
               Protocol64Pointers:(Pointer64Vector const *)protocols
 {
   MVNode * node = nil;
-  
-  for (Pointer64Vector::const_iterator iter = classes->begin(); iter != classes->end(); ++iter)
-  {
+  for (Pointer64Vector::const_iterator iter = classes->begin(); iter != classes->end(); ++iter) {
     uint64_t const & rva64 = *iter;
-    if (rva64 && (node = [self sectionNodeContainsRVA64:rva64]))
+    if (rva64 && (node =  [self sectionNodeContainsRVA64:rva64]))
     {
-      uint32_t location = [self RVA64ToFileOffset:rva64];   
+      uint32_t location = [self RVA64ToFileOffset:rva64];
       NSString * caption = [self findSymbolAtRVA64:rva64];
       MATCH_STRUCT(class64_t,location)
       [self createObjC2Class64Node:node
@@ -3298,7 +3296,7 @@ struct message_ref64
     uint64_t const & rva64 = *iter;
     if (rva64 && (node = [self sectionNodeContainsRVA64:rva64]))
     {
-      uint32_t location = [self RVA64ToFileOffset:rva64]; 
+      uint32_t location = [self RVA64ToFileOffset:rva64];
       NSString * caption = [self findSymbolAtRVA64:rva64];
       MATCH_STRUCT(category64_t,location)
       [self createObjC2Category64Node:node
@@ -3307,13 +3305,13 @@ struct message_ref64
                              category:category64_t];
     }
   }
-  
+
   for (Pointer64Vector::const_iterator iter = protocols->begin(); iter != protocols->end(); ++iter)
   {
     uint64_t const & rva64 = *iter;
     if (rva64 && (node = [self sectionNodeContainsRVA64:rva64]))
     {
-      uint32_t location = [self RVA64ToFileOffset:rva64];  
+      uint32_t location = [self RVA64ToFileOffset:rva64];
       NSString * caption = [self findSymbolAtRVA64:rva64];
       MATCH_STRUCT(protocol64_t,location)
       [self createObjC2Protocol64Node:node

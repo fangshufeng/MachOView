@@ -23,6 +23,11 @@ using namespace std;
 //============================================================================
 @implementation MachOLayout
 
+- (void)dealloc {
+#if DEBUG
+    NSLog(@"MachOLayout----dealloc");
+#endif
+}
 // ----------------------------------------------------------------------------
 - (id)init
 {
@@ -721,7 +726,7 @@ _hex2int(char const * a, uint32_t len)
   uint64_t base_addr;
   uint64_t seg1addr = (uint64_t)-1LL;
   uint64_t segs_read_write_addr = (uint64_t)-1LL;
-  
+
   for (CommandVector::const_iterator cmdIter = commands.begin(); cmdIter != commands.end(); ++cmdIter)
   {
     struct load_command const * load_command = *cmdIter;
@@ -2512,7 +2517,7 @@ struct CompareSectionByName
   {
     [self printException:exception caption:rootNode.caption];
   }
-  
+    
   [super doMainTasks];
 }
 
@@ -2526,8 +2531,10 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processLinkEdit]; else [self processLinkEdit64];
     }
+#if DEBUG
     NSLog(@"%@: LinkEdit finished parsing. (%lu symbols found)", self, 
-    [self is64bit] == NO ? symbols.size() : symbols_64.size());
+          [self is64bit] == NO ? symbols.size() : symbols_64.size());
+#endif
   }];
   
   NSBlockOperation * sectionRelocsOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2537,7 +2544,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processSectionRelocs]; else [self processSectionRelocs64];
     }
+#if DEBUG
     NSLog(@"%@: Section relocations finished parsing.", self);
+#endif
   }];
 
   NSBlockOperation * dyldInfoOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2547,7 +2556,9 @@ struct CompareSectionByName
     @autoreleasepool {
       [self processDyldInfo];
     }
+#if DEBUG
     NSLog(@"%@: Dyld info finished parsing.", self);
+#endif
   }];
 
   NSBlockOperation * sectionOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2557,7 +2568,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processSections]; else [self processSections64];
     }
+#if DEBUG
     NSLog(@"%@: Section contents finished parsing.", self);
+#endif
   }];
 
   NSBlockOperation * EHFramesOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2567,7 +2580,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processEHFrames]; else [self processEHFrames64];
     }
+#if DEBUG
     NSLog(@"%@: Exception Frames finished parsing.", self);
+#endif
   }];
 
   NSBlockOperation * LSDAsOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2577,7 +2592,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processLSDA]; else [self processLSDA64];
     }
+#if DEBUG
     NSLog(@"%@: Lang Spec Data Areas finished parsing. (%lu LSDAs found)", self, lsdaInfo.size());
+#endif
   }];
 
   NSBlockOperation * objcSectionOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2587,7 +2604,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processObjcSections]; else [self processObjcSections64];
     }
+#if DEBUG
     NSLog(@"%@: ObjC Section contents finished parsing.", self);
+#endif
   }];
 
   NSBlockOperation * codeSectionsOperation = [NSBlockOperation blockOperationWithBlock:^
@@ -2597,7 +2616,9 @@ struct CompareSectionByName
     @autoreleasepool {
       if ([self is64bit] == NO) [self processCodeSections]; else [self processCodeSections64];
     }
+#if DEBUG
     NSLog(@"%@: Code sections finished parsing.", self);
+#endif
   }];
 //
 //  // setup dependencies

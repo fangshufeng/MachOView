@@ -2151,8 +2151,9 @@ using namespace std;
         
         // preserv section fileOffset/sectName for RVA lookup
         NSDictionary * userInfo = [self userInfoForSection64:section_64];
-        sectionInfo[section_64->addr] = make_pair(section_64->offset + imageOffset, userInfo);
-
+        uint64_t key  = section_64->addr;
+        sectionInfo[key] = make_pair(section_64->offset + imageOffset, userInfo);
+//          NSLog(@"key----0x%llx---%@",key,userInfo);s
         // preserv header info for latter use
         sections_64.push_back(section_64);
       }
@@ -2409,7 +2410,7 @@ using namespace std;
                   location:location
                     length:length];
   } // switch
-  
+    
   return node;
 }
 
