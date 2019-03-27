@@ -31,7 +31,7 @@
 
 操作方法先打开`view` -> `Show MetaClassInfo` ，然后再推入二进制文件
 
-[dmg地址](https://github.com/fangshufeng/MachOView/releases/tag/2.5)
+[dmg地址](https://github.com/fangshufeng/MachOView/releases/tag/2.6.0)
 
 ## v2.5 优化搜索功能
 
