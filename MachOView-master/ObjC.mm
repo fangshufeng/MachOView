@@ -2810,153 +2810,183 @@ struct message_ref64
 }
 
 //------------------------------------------------------------------------------
-- (MVNode *)createObjC2ClassNode:(MVNode *)parent
-                         caption:(NSString *)caption
-                        location:(uint32_t)location
-                           class:(struct class_t const *)class_t
-{  
-  // check for parent
-  if (parent == nil)
-  {
-    return nil;
-  }
-  
-  // check for duplicates
-  MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
-    return node;
-  }
-  
-  MVNodeSaver nodeSaver;
-  node = [parent insertChildWithDetails:[@"ObjC2 Class: " stringByAppendingString:caption]
-                               location:location
-                                 length:sizeof(struct class_t)
-                                  saver:nodeSaver];
-  
-  NSRange range = NSMakeRange(location,0);
-  NSString * lastReadHex;
-  
-  [dataController read_uint32:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"ISA"
-                         :[self findSymbolAtRVA:class_t->isa]];
-
-  [dataController read_uint32:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Super Class"
-                         :[self findSymbolAtRVA:class_t->superclass]];
-
-  [dataController read_uint32:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Cache"
-                         :[self findSymbolAtRVA:class_t->cache]];
-
-  [dataController read_uint32:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"VTable"
-                         :[self findSymbolAtRVA:class_t->vtable]];
-
-  [dataController read_uint32:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Data"
-                         :[self findSymbolAtRVA:class_t->data]];
-  
-  MVNode * childNode = nil;
-  
-  // readonly data
-  if (class_t->data && (childNode = [self sectionNodeContainsRVA:class_t->data]))
-  {
-    uint32_t location = [self RVAToFileOffset:class_t->data];
-    NSString * caption = [self findSymbolAtRVA:class_t->data];
-    MATCH_STRUCT(class_ro_t,location)
-    [self createObjC2ClassRONode:childNode
-                         caption:caption
-                        location:location
-                         classRO:class_ro_t];
-  }
-  
-  return node;
+- (MVNode *)__createObjC2MetaClassNode:(MVNode *)parent
+                                 caption:(NSString *)caption
+                                location:(uint32_t)location
+                                   class:(struct class_t const *)class_t {
+    return [self __createObjC2Node:parent caption:caption location:location class:class_t prefix:@"ObjC2 MetaClass:"];
 }
 
-//------------------------------------------------------------------------------
-- (MVNode *)createObjC2Class64Node:(MVNode *)parent
+- (MVNode *)__createObjC2ClassNode:(MVNode *)parent
                            caption:(NSString *)caption
                           location:(uint32_t)location
-                             class:(struct class64_t const *)class64_t
-{  
-  // check for parent
-  if (parent == nil)
-  {
-    return nil;
-  }
-  
-  // check for duplicates
-  MVNode * node = [self entryInSectionNode:parent atLocation:location];
-  if (node != nil)
-  {
+                             class:(struct class_t const *)class_t
+{
+    return [self __createObjC2Node:parent caption:caption location:location class:class_t prefix:@"ObjC2 Class:"];
+}
+
+- (MVNode *)__createObjC2Node:(MVNode *)parent
+                        caption:(NSString *)caption
+                       location:(uint32_t)location
+                          class:(struct class_t const *)class_t
+                         prefix:(NSString *)prefix {
+    // check for parent
+    if (parent == nil)
+    {
+        return nil;
+    }
+    
+    // check for duplicates
+    MVNode * node = [self entryInSectionNode:parent atLocation:location];
+    if (node != nil)
+    {
+        return node;
+    }
+    
+    MVNodeSaver nodeSaver;
+    node = [parent insertChildWithDetails:[NSString stringWithFormat:@"%@  %@",prefix,caption]
+                                 location:location
+                                   length:sizeof(struct class_t)
+                                    saver:nodeSaver];
+    
+    NSRange range = NSMakeRange(location,0);
+    NSString * lastReadHex;
+    
+    [dataController read_uint32:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"ISA"
+                           :[self findSymbolAtRVA:class_t->isa]];
+    
+    [dataController read_uint32:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Super Class"
+                           :[self findSymbolAtRVA:class_t->superclass]];
+    
+    [dataController read_uint32:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Cache"
+                           :[self findSymbolAtRVA:class_t->cache]];
+    
+    [dataController read_uint32:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"VTable"
+                           :[self findSymbolAtRVA:class_t->vtable]];
+    
+    [dataController read_uint32:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Data"
+                           :[self findSymbolAtRVA:class_t->data]];
+    
+    MVNode * childNode = nil;
+    
+    // readonly data
+    if (class_t->data && (childNode = [self sectionNodeContainsRVA:class_t->data]))
+    {
+        uint32_t location = [self RVAToFileOffset:class_t->data];
+        NSString * caption = [self findSymbolAtRVA:class_t->data];
+        MATCH_STRUCT(class_ro_t,location)
+        [self createObjC2ClassRONode:childNode
+                             caption:caption
+                            location:location
+                             classRO:class_ro_t];
+    }
+    
     return node;
-  }
-  
-  MVNodeSaver nodeSaver;
-  node = [parent insertChildWithDetails:[@"ObjC2 Class64: " stringByAppendingString:caption]
-                               location:location
-                                 length:sizeof(struct class64_t)
-                                  saver:nodeSaver];
-  
-  NSRange range = NSMakeRange(location,0);
-  NSString * lastReadHex;
-  
-  [dataController read_uint64:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"ISA"
-                         :[self findSymbolAtRVA64:class64_t->isa]];
-  
-  [dataController read_uint64:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Super Class"
-                         :[self findSymbolAtRVA64:class64_t->superclass]];
-  
-  [dataController read_uint64:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Cache"
-                         :[self findSymbolAtRVA64:class64_t->cache]];
-  
-  [dataController read_uint64:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"VTable"
-                         :[self findSymbolAtRVA64:class64_t->vtable]];
-  
-  [dataController read_uint64:range lastReadHex:&lastReadHex];
-  [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
-                         :lastReadHex
-                         :@"Data"
-                         :[self findSymbolAtRVA64:class64_t->data]];
-  
-  MVNode * childNode = nil;
-  
-  // readonly data
-  if (class64_t->data && (childNode = [self sectionNodeContainsRVA64:class64_t->data]))
-  {
-    uint32_t location = [self RVA64ToFileOffset:class64_t->data];
-    NSString * caption = [self findSymbolAtRVA64:class64_t->data];
-    MATCH_STRUCT(class64_ro_t,location)
-    [self createObjC2Class64RONode:childNode
-                           caption:caption
-                          location:location
-                           classRO:class64_ro_t];
-  }
-  
-  return node;
+}
+
+#pragma mark ------------------------------64bit-----------------------------------------------
+- (MVNode *)__createObjC2MetaClass64Node:(MVNode *)parent
+                                 caption:(NSString *)caption
+                                location:(uint32_t)location
+                                   class:(struct class64_t const *)class64_t {
+    return [self __createObjC264Node:parent caption:caption location:location class:class64_t prefix:@"ObjC2 MetaClass64:"];
+}
+
+- (MVNode *)__createObjC2Class64Node:(MVNode *)parent
+                             caption:(NSString *)caption
+                          location:(uint32_t)location
+                             class:(struct class64_t const *)class64_t
+{
+    return [self __createObjC264Node:parent caption:caption location:location class:class64_t prefix:@"ObjC2 Class64:"];
+}
+
+- (MVNode *)__createObjC264Node:(MVNode *)parent
+                        caption:(NSString *)caption
+                       location:(uint32_t)location
+                          class:(struct class64_t const *)class64_t
+                         prefix:(NSString *)prefix {
+    // check for parent
+    if (parent == nil)
+    {
+        return nil;
+    }
+    
+    // check for duplicates
+    MVNode * node = [self entryInSectionNode:parent atLocation:location];
+    if (node != nil)
+    {
+        return node;
+    }
+    
+    MVNodeSaver nodeSaver;
+    node = [parent insertChildWithDetails:[NSString stringWithFormat:@"%@  %@",prefix,caption]
+                                 location:location
+                                   length:sizeof(struct class64_t)
+                                    saver:nodeSaver];
+    
+    NSRange range = NSMakeRange(location,0);
+    NSString * lastReadHex;
+    
+    [dataController read_uint64:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"ISA"
+                           :[self findSymbolAtRVA64:class64_t->isa]];
+    
+    [dataController read_uint64:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Super Class"
+                           :[self findSymbolAtRVA64:class64_t->superclass]];
+    
+    [dataController read_uint64:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Cache"
+                           :[self findSymbolAtRVA64:class64_t->cache]];
+    
+    [dataController read_uint64:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"VTable"
+                           :[self findSymbolAtRVA64:class64_t->vtable]];
+    
+    [dataController read_uint64:range lastReadHex:&lastReadHex];
+    [node.details appendRow:[NSString stringWithFormat:@"%.8lX", range.location]
+                           :lastReadHex
+                           :@"Data"
+                           :[self findSymbolAtRVA64:class64_t->data]];
+    
+    MVNode * childNode = nil;
+    
+    // readonly data
+    if (class64_t->data && (childNode = [self sectionNodeContainsRVA64:class64_t->data]))
+    {
+        uint32_t location = [self RVA64ToFileOffset:class64_t->data];
+        NSString * caption = [self findSymbolAtRVA64:class64_t->data];
+        MATCH_STRUCT(class64_ro_t,location)
+        [self createObjC2Class64RONode:childNode
+                               caption:caption
+                              location:location
+                               classRO:class64_ro_t];
+    }
+    
+    return node;
 }
 
 //------------------------------------------------------------------------------
@@ -3031,10 +3061,10 @@ struct message_ref64
     uint32_t location = [self RVAToFileOffset:category_t->cls]; 
     NSString * caption = [self findSymbolAtRVA:category_t->cls];
     MATCH_STRUCT(class_t,location)
-    [self createObjC2ClassNode:childNode
-                       caption:caption
-                      location:location
-                         class:class_t];
+    [self __createObjC2ClassNode:childNode
+                         caption:caption
+                        location:location
+                           class:class_t];
   }
   
   // Instance Methods
@@ -3160,10 +3190,10 @@ struct message_ref64
     uint32_t location = [self RVA64ToFileOffset:category64_t->cls];
     NSString * caption = [self findSymbolAtRVA64:category64_t->cls];
     MATCH_STRUCT(class64_t,location)
-    [self createObjC2Class64Node:childNode
-                         caption:caption
-                        location:location
-                           class:class64_t];
+    [self __createObjC2Class64Node:childNode
+                           caption:caption
+                          location:location
+                             class:class64_t];
   }
   
   // Instance Methods
@@ -3232,10 +3262,23 @@ struct message_ref64
       uint32_t location = [self RVAToFileOffset:rva]; 
       NSString * caption = [self findSymbolAtRVA:rva];
       MATCH_STRUCT(class_t,location)
-      [self createObjC2ClassNode:node
-                         caption:caption
-                        location:location
-                           class:class_t];
+      [self __createObjC2ClassNode:node
+                           caption:caption
+                          location:location
+                             class:class_t];
+extern BOOL g_MVAppController_ShowMetaClass;
+        
+        if (g_MVAppController_ShowMetaClass) {
+            uint32_t metaclassLoction =    [self RVAToFileOffset:class_t->isa];
+            NSString *metaclassCaption =    [self findSymbolAtRVA:class_t->isa];
+            
+            MATCH_STRUCT(class_t,metaclassLoction);
+            
+            [self __createObjC2MetaClassNode:node
+                                       caption:metaclassCaption
+                                      location:metaclassLoction
+                                       class:class_t];
+        }
     }
   }
 
@@ -3276,6 +3319,7 @@ struct message_ref64
               Category64Pointers:(Pointer64Vector const *)categories
               Protocol64Pointers:(Pointer64Vector const *)protocols
 {
+    
   MVNode * node = nil;
   for (Pointer64Vector::const_iterator iter = classes->begin(); iter != classes->end(); ++iter) {
     uint64_t const & rva64 = *iter;
@@ -3283,11 +3327,26 @@ struct message_ref64
     {
       uint32_t location = [self RVA64ToFileOffset:rva64];
       NSString * caption = [self findSymbolAtRVA64:rva64];
-      MATCH_STRUCT(class64_t,location)
-      [self createObjC2Class64Node:node
-                           caption:caption
-                          location:location
-                             class:class64_t];
+        MATCH_STRUCT(class64_t,location)
+        
+        [self __createObjC2Class64Node:node
+                               caption:caption
+                              location:location
+                                 class:class64_t];
+        
+extern BOOL g_MVAppController_ShowMetaClass;
+        
+        if (g_MVAppController_ShowMetaClass) {
+            uint32_t metaclassLoction =    [self RVA64ToFileOffset:class64_t->isa];
+            NSString *metaclassCaption =    [self findSymbolAtRVA64:class64_t->isa];
+            
+            MATCH_STRUCT(class64_t,metaclassLoction);
+            
+            [self __createObjC2MetaClass64Node:node
+                                       caption:metaclassCaption
+                                      location:metaclassLoction
+                                         class:class64_t];
+        }
     }
   }
   

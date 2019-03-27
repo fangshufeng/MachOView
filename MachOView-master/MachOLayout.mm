@@ -1826,7 +1826,7 @@ struct CompareSectionByName
   NSString * lastNodeCaption;
   MVNode * sectionNode;
   struct section_64 const * section_64;
-  
+
   @try 
   {
     section_64 = [self findSection64ByName:"__class_list" andSegment:"__OBJC2"];

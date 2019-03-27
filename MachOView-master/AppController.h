@@ -21,5 +21,7 @@
 @end
 
 
+BOOL g_MVAppController_ShowMetaClass;
+
 
 

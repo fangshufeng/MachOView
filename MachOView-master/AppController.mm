@@ -357,6 +357,18 @@ int64_t nrow_loaded; // number of loaded rows
     [preferenceController showWindow:self];
 }
 
+- (IBAction)showMetaClassInfo:(NSMenuItem *)sender {
+    
+    if (sender.state == NSControlStateValueOn) {
+        sender.state =  NSControlStateValueOff;
+        g_MVAppController_ShowMetaClass = NO;
+    } else {
+        sender.state =  NSControlStateValueOn;
+        g_MVAppController_ShowMetaClass = YES;
+    }
+   
+}
+
 @end
 
 
