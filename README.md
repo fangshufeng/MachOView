@@ -2,6 +2,14 @@
 
 该工程是建立在[轮子](https://github.com/gdbinit/MachOView)上的，感谢作者的贡献，遗憾的源工程无法直接编译，这边自己维护了下。
 
+## v2.6.1 更新内容
+
+增加`Symbol Table `和`Dynamic Symbol Table`和`String Table` 的索引值以及十进制表示值，方便查找内容
+
+
+![](https://github.com/fangshufeng/MachOView/blob/master/mdimg/WX20190828-114646.png)
+
+[2.6.1dmg](https://github.com/fangshufeng/MachOView/releases/tag/2.6.1)
 
 ## v2.6.0 更新内容
 
