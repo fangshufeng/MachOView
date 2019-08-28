@@ -291,10 +291,10 @@ NSString * const MVStatusTaskTerminated           = @"MVStatusTaskTerminated";
     int keyOrdinal = getc(pFile);
     switch (keyOrdinal)
     {
-      case MVUnderlineAttributeOrdinal: [_attributes setObject:[self readStringFromFile:pFile] forKey:MVUnderlineAttributeName]; break;
-      case MVCellColorAttributeOrdinal: [_attributes setObject:[self readColorFromFile:pFile] forKey:MVCellColorAttributeName]; break;
-      case MVTextColorAttributeOrdinal: [_attributes setObject:[self readColorFromFile:pFile] forKey:MVTextColorAttributeName]; break;
-      case MVMetaDataAttributeOrdinal:  [_attributes setObject:[self readStringFromFile:pFile] forKey:MVMetaDataAttributeName]; break;
+        case MVUnderlineAttributeOrdinal: [_attributes setObject:[self readStringFromFile:pFile] ?: @"" forKey:MVUnderlineAttributeName]; break;
+        case MVCellColorAttributeOrdinal: [_attributes setObject:[self readColorFromFile:pFile] ?: @"" forKey:MVCellColorAttributeName]; break;
+        case MVTextColorAttributeOrdinal: [_attributes setObject:[self readColorFromFile:pFile] ?: @"" forKey:MVTextColorAttributeName]; break;
+        case MVMetaDataAttributeOrdinal:  [_attributes setObject:[self readStringFromFile:pFile] ?: @"" forKey:MVMetaDataAttributeName]; break;
       default: NSLog(@"warning: unknown attribute key");
     }
   }
