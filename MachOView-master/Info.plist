@@ -32,7 +32,7 @@
 	<key>CFBundleIconFile</key>
 	<string>redApple.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>org.fangshufeng.MachOView</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
